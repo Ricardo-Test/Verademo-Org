@@ -4,7 +4,7 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/java
 
 trigger:
-- master
+- develop
 
 pool:
   vmImage: ubuntu-latest
@@ -22,6 +22,9 @@ steps:
     goals: 'package'
 
 - task: CmdLine@2
+  env:
+    VERACODE_API_KEY_ID: $(vid)
+    VERACODE_API_KEY_SECRET: $(vkey)
   inputs:
     script: |
       git clone https://github.com/tjarrettveracode/veracode-pipeline-mitigation
@@ -32,5 +35,8 @@ steps:
   inputs:
     VeracodeAPIID: '$(vid)'
     VeracodeAPIsecret: '$(vkey)'
-    fileToScan: 'verademo.war'
-    baselineFile: 'baseline-bd08b486-09b1-485b-bf6a-a7d3105fc8f2.json' 
+    fileToScan: './target/verademo.war'
+    breakPipeline: true
+    baselineFile: 'baseline-bd08b486-09b1-485b-bf6a-a7d3105fc8f2.json'
+  condition:
+      succeededOrFailed()
